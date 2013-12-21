@@ -1,0 +1,35 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia %}  
+{% block title %}
+    题目被答统计 | Geek Challenge
+{% endblock %}
+
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="../">
+        {% trans "Home" %}
+      </a>
+       &rsaquo;
+       统计信息
+       &rsaquo;
+       题目被答情况 (共{{items|length}}道题)
+    </div>
+  {% endblock %}
+{% endif %}
+
+
+{% block content %}
+  <div id="content-main">
+    {% if answered_items_and_count %}
+        <table>
+            <tr><th>题目</th> <th>分类</th><th>分值</th><th>出题人</th><th>答对人数</th></tr>
+            {% for item, count in answered_items_and_count %}
+            <tr><td>{{item}}</td><td>{{item.item_type}}</td><td>{{item.score}}</td><td>{{item.author}}</td><td>{{count}}</td></tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>{% trans "There is nothing." %}</p>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n adminmedia %}  
+{% block title %}
+    团队答题统计 | Geek Challenge
+{% endblock %}
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="../">
+        {% trans "Home" %}
+      </a>
+       &rsaquo;
+       统计信息
+       &rsaquo;
+       团队答题情况 (共{{teams|length}}支队伍)
+    </div>
+  {% endblock %}
+{% endif %}
+
+
+{% block content %}
+  <div id="content-main">
+    {% if answered_items_by_teams %}
+        {% for team, answered_items in answered_items_by_teams %}
+            <div class="module" style="border:0px">
+                <table>
+                    <caption class="section">排名:{{forloop.counter}} 团队:{{ team }} 得分:{{team.team_score}} 答题数:{{team.answered_count}} 提交时间:{{team.last_submit_time|date:"Y-m-d H:i:s"}}</caption>
+                        {% for type in types %}
+                        <tr>
+                            <th>{{type}}</th>
+                            {% for item in answered_items %}
+                            {% if item.item_type == type%}<td>{{item}}</td>{% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        
+                </table>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{% trans "There is nothing." %}</p>
+    {% endif %}
+  </div>
+{% endblock %}

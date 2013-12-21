@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ flatpage.title }}
+{% endblock %}
+
+{% block pageheader %}
+    {{ flatpage.title }}
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+            $('#id_nav_flatpage{{flatpage.id}}').attr('class', 'active');
+    });
+</script>
+<div class="container">
+    <div class="well">
+        {{ flatpage.content|safe }}
+    </div>
+</div>
+{% endblock %}

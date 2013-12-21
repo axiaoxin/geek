@@ -1,0 +1,189 @@
+﻿{% extends "forum-base.html" %}
+
+{% block title %}
+    {{thread.title}} - {{thread.forum.name}} - 极客论坛
+{% endblock %}
+
+{%block forum_body%}
+<div>
+    <p>当前位置: <a href="/forum/">论坛首页</a>{% if parents %}{% for parent in parents reversed %} » <a href="/forum/{{parent.id}}/">{{parent}}</a>{% endfor %}{% endif %} » <a href="/forum/{{thread.forum.id}}/">{{thread.forum.name}}</a> » <span id="bar-thread-title">{{thread}}</span></p>
+</div><hr>
+
+    <div class="row-fluid"> 
+        <div class="span2 well">
+            <div>
+                <p>作者 : {{thread.author.user.username}}</p>
+                <p>学院 : {{thread.author.institute}}</p>
+                <p>得分 : {{thread.author.team_score}}</p>
+                <p>答题数 : {{thread.author.answered_count}}</p>
+            </div>
+        </div><!--span2-->
+
+        <div class="span10 well">
+            <div>
+                <p style="border-bottom:1px dotted;"><small>发表时间 : {{thread.submit_time|date:"Y-m-d H:i:s"}}{% if thread.update_time %}<span id="update-time"> | 最后一次更新时间 : {{thread.update_time|date:"H:i:s"}}</span>{% endif %}<span class="pull-right">0#<span></small></p>
+                <p style="font-size:150%;border-bottom:1px dotted;" id="thread-title">{{thread.title}}</p>
+                <p><pre id="thread-content">{{thread.content}}</pre></p>
+                <p style="border-top:1px dotted;border-bottom:1px dotted;"><small>参赛口号 : {{thread.author.motto}}</small></p>
+                <div id="reply-thread-modal" class="modal hide fade">
+                    <div class="modal-header">
+                        <a class="close" data-dismiss="modal" >&times;</a>
+                        <h4>发表回复</h4>
+                    </div>
+                    <div class="modal-body" id="reply-form">
+                        {{reply_form.as_p}}
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn" data-dismiss="modal" id="close-reply-form">关闭</a>
+                        <button class="btn btn-primary reply-btn" onclick="post_data()">回复</button>
+                    </div>
+                </div><!--reply form-->
+                <div id="edit-thread-modal" class="modal hide fade">
+                    <div class="modal-header">
+                        <a class="close" data-dismiss="modal" >&times;</a>
+                        <h4>修改帖子</h4>
+                    </div>
+                    <div class="modal-body" id="edit-thread-form">
+                        {{edit_form.as_p}}
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn" data-dismiss="modal" id="close-thread-form" >关闭</a>
+                        <button class="btn btn-primary" onclick="edit_thread()">修改</button>
+                    </div>
+                </div><!--edit form-->
+
+                <div>
+                    <p class="pull-right"><small><a data-toggle="modal" href="#reply-thread-modal" class="btn btn-mini btn-primary" onclick="clean_form()">回复</a> {% if request.user == thread.author.user %}<a data-toggle="modal" href="#edit-thread-modal" class="btn btn-mini btn-inverse">编辑</a>{% endif %}</small></p>
+                </div>
+            </div>
+
+        </div><!--span10-->
+    </div><!--row-->
+
+{% if thread.reply_set.all %}
+{% for reply in thread.reply_set.all %}
+<div class="row-fluid" id="reply-{{reply.id}}">
+    <div class="span2 well">
+        <div>
+            <p>作者 : {{reply.author.user.username}}</p>
+            <p>学院 : {{reply.author.institute}}</p>
+            <p>得分 : {{reply.author.team_score}}</p>
+            <p>答题数 : {{reply.author.answered_count}}</p>
+        </div>
+    </div><!--span2-->
+    <div class="span10 well">
+        <div id="edit-reply-{{reply.id}}-modal" class="modal hide fade">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal" >&times;</a>
+                <h4>修改回复</h4>
+            </div>
+            <div class="modal-body" id="edit-reply-{{reply.id}}-form">
+                <p><label for="id_content">回复内容:</label> <textarea required="required" id="id_content" style="width:100%" rows="10" cols="40"  name="content">{{reply.content}}</textarea></p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn" data-dismiss="modal" id="close-reply-{{reply.id}}-form">关闭</a>
+                <button class="btn btn-primary reply-btn" onclick="post_edit_data('{{reply.id}}')">修改</button>
+            </div>
+        </div><!--edit reply form-->
+        <p style="border-bottom:1px dotted;"><small>发表时间 : {{reply.submit_time|date:"Y-m-d H:i:s"}}{% if reply.update_time %} | 最后一次更新时间 : {{reply.update_time|date:"H:i:s"}}{% endif %}<span class="pull-right">{{forloop.counter}}#<span></small></p>
+        <p><pre id="reply-{{reply.id}}-content">{{reply.content}}</pre></p>
+        <p style="border-top:1px dotted;border-bottom:1px dotted;"><small>参赛口号 : {{reply.author.motto}}</small></p>
+        <div>
+            <p class="pull-right"><small><a data-toggle="modal" href="#reply-thread-modal" class="btn btn-mini btn-primary" onclick="init_form('reply-{{forloop.counter}}', '{{reply.author.user.username}}')">回复</a> {% if request.user == reply.author.user %}<a data-toggle="modal" href="#edit-reply-{{reply.id}}-modal" class="btn btn-mini btn-inverse">编辑</a>{% endif %}</small></p>
+        </div>
+    </div><!--span10-->
+</div><!--row-->
+{% endfor %}
+{% endif %}
+<script>
+
+    function init_form(reply_id, nickname){
+        var floor = reply_id.split('-')[1]
+        var url = "回复"+ floor +"# @" + nickname + " ：";
+        $('#reply-form p textarea').val(url);
+    }
+
+    function add_result(data){
+        var result='<div class="row-fluid" id="reply-'+data.floor+'"><div class="span2 well"><div><p>作者 : '+data.author+'</p><p>学院 : '+data.institute+'</p><p>得分 : '+data.score+'</p><p>答题数 : '+data.count+'</p></div></div><div class="span10 well"><div id="edit-reply-'+data.reply_id+'-modal" class="modal hide fade"><div class="modal-header"><a class="close" data-dismiss="modal" >&times;</a><h4>修改回复</h4></div><div class="modal-body" id="edit-reply-'+data.reply_id+'-form"><p><label for="id_content">回复内容:</label> <textarea id="id_content" style="width:100%" rows="10" cols="40"  name="content" required="required">'+data.content+'</textarea></p></div><div class="modal-footer"><a href="#" class="btn" data-dismiss="modal" id="close-reply-'+data.reply_id+'-form">关闭</a><button class="btn btn-primary reply-btn" onclick="post_edit_data(\''+data.reply_id+'\')">修改</button></div></div><p style="border-bottom:1px dotted;"><small>发表时间 : '+data.time+'<span class="pull-right">'+data.floor+'#<span></small></p><p><pre id="reply-'+data.reply_id+'-content">'+data.content+'</pre></p><p style="border-top:1px dotted;border-bottom:1px dotted;"><small>参赛口号 : '+data.motto+'</small></p><div><p class="pull-right"><small><a data-toggle="modal" href="#reply-thread-modal" class="btn btn-mini btn-primary" onclick="init_form(\'reply-'+data.floor+'\', \''+data.author+'\')">回复</a> <a data-toggle="modal" href="#edit-reply-'+data.reply_id+'-modal" class="btn btn-mini btn-inverse">编辑</a></small></p></div></div></div>'
+        $('#close-reply-form').trigger('click');
+        $('.row-fluid:last').append(result)
+    }
+
+    function post_data(){
+        var request_url = "/forum/{{thread.forum.id}}/{{thread.id}}/reply/"
+        var content = $('#reply-form p textarea').val()
+        $.post( request_url,
+                {'content':content, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                function(data){
+                    if (data!='error' && typeof(data) == 'object'){
+                        add_result(data);
+                    }else{
+                        alert("操作失败，您尚未登录或者输入内容不正确！");    
+                    }
+                }
+        );
+    };
+
+    function clean_form(){
+        $('#reply-form p textarea').val('');
+    }
+
+    function change_reply(reply_id, data){
+        $('#close-reply-'+reply_id+'-form').trigger('click');
+        var content = $('#reply-'+reply_id+'-content').html(data.new_content);
+    }
+
+
+    function post_edit_data(reply_id){
+        var request_url = "/forum/edit-reply/"+reply_id+"/";
+        var content = $('#edit-reply-'+reply_id+'-form p textarea').val()
+        $.post( request_url,
+                {'content':content, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                function(data){
+                    if (data!='error'){
+                        change_reply(reply_id, data)
+                    }else{
+                        alert("操作失败，请检查输入内容是否正确！");    
+                    }
+                }
+        );
+    };
+
+    function change_thread(data){
+        $('#close-thread-form').trigger('click');
+        $('#thread-title').html(data.title);
+        $('#thread-content').html(data.content);
+        $('#update-time').html(' | 最后一次更新时间 : '+data.time);
+        $('#bar-thread-title').text(data.title);
+    }
+
+    function edit_thread(){
+        var request_url = "/forum/{{thread.forum.id}}/{{thread.id}}/edit/";   
+        var title = $('#edit-thread-form p #id_title').val()
+        var content = $('#edit-thread-form p textarea').val()
+        $.post( request_url,
+                {'title':title, 'content':content, 'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                function(data){
+                    if (data!='error'){
+                        change_thread(data)
+                    }else{
+                        alert("操作失败，请检查输入内容是否正确！")    
+                    }
+                }
+        );
+    }
+
+</script>
+<script src="/static/js/userAutoTips.js"></script>
+<style type="text/css" >
+    ol, ul { list-style: none outside none; }
+    .recipients-tips{ font-family:Tahoma, Arial;position:absolute; background:#282828; z-index:2147483647; padding:2px; border:2px solid #33b5e5; display:none;}
+    .recipients-tips li a{display:block; padding:2px 5px; cursor:pointer;}
+    .autoSelected{background:#131517;}
+</style>
+
+<script type="text/javascript">
+    userAutoTips({id:'id_content'});
+</script>
+
+{% endblock %}

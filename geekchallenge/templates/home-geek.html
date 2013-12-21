@@ -1,0 +1,41 @@
+﻿{% extends "base.html" %}
+
+{% block title %}
+    首页
+{% endblock %}
+
+{% block pageheader %}
+成都信息工程学院第三季极客大挑战
+<a href="http://tech.cuit.edu.cn/" target="_blank"><img src="/static/img/syclogo.png" alt="三叶草小组" width="195px" class="pull-right"></a>
+{% endblock %}
+
+{% block pageheadersmall %}
+     Geek Challenge
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_home').attr('class', 'active');
+    });
+</script>
+
+<div class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1">
+    <div class="modal-header">
+        <h3>比赛最新公告</h3>
+    </div>
+    <div class="modal-body">
+        {% if latest_notices %}
+        <p>{{ latest_notices.content|safe }}
+            <br><small class="pull-right"> --- {{ latest_notices.pub_time|date:"Y-m-d H:i:s" }}</small>
+        </p>
+        {% else %}
+        <p>欢迎访问成都信息工程学院极客大挑战答题平台！</p>
+        {% endif %}
+    </div>
+    <div class="modal-footer">
+        <a href="/notices/" class="btn btn-primary">查看历史公告 &raquo;</a>
+    </div>
+</div>
+    <div style="display:block;margin-bottom:100px;"></div>
+{% endblock %}

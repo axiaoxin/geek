@@ -1,0 +1,57 @@
+﻿{% extends "forum-base.html" %}
+{%block forum_body%}
+    {% if areas %}
+    {% for area in areas %}
+        <div class="page-header">
+            <div class="show-forum pull-right label label-info" style="margin-top:12px; cursor:pointer">收起</div>
+            <h3>{{ area.area_name }} <small>{{ area.desc }}</small></h3>
+        </div>
+        {% if area.forum_set.all %}
+        <table class="table table-hover table-striped">
+            {% for forum in area.forum_set.all %}
+                {% if not forum.parent %}
+                <tr>
+                    <th>
+                        <h4><a href="/forum/{{ forum.id }}/">{{ forum.name }}</a></h4>
+                        <p><small>{{ forum.desc }}&nbsp; </small></p>
+                        <p>
+                        {% if forum.child.all %}
+                        <small>子版块:
+                        {% for child in forum.child.all %}
+                        <a href="/forum/{{ child.id }}/">{{ child }}</a>  
+                        {% endfor %}
+                        </small></p>
+                        {% endif %}&nbsp;
+                    </th>
+                    <td>
+                        <p style="margin-top:25px; text-align:center;">
+                            <small>
+                            {% if forum.latest_thread %}
+                            {% if forum.latest_thread.is_toped %}[置顶] {% endif %}{% if forum.latest_thread.is_elite %}[精华] {% endif %}<a href="/forum/{{ forum.latest_thread.forum.id }}/{{ forum.latest_thread.id }}/">{{ forum.latest_thread }}</a>
+                            <br>{{ forum.latest_thread.author }} - {{ forum.latest_thread.submit_time|date:"Y-m-d H:i:s" }}</small>
+                            {% else %}
+                            当前版块暂无新帖
+                            {% endif %}
+                        </p>
+                    </td>
+                    <td><p style="margin-top:35px; text-align:center;"><small>回复数/帖子数<br>{{ forum.reply_count }}/{{ forum.thread_count }}</small></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+        {% else %}
+        <div style="text-align:center;color:red;"><p>版块尚未启用</p></div>
+        {% endif %}
+    {% endfor %}
+    {% else %}
+        <div style="text-align:center;color:red;"><p>论坛尚未启用</p></div>
+    {% endif %}
+    <script>
+        $(function(){
+            $('.show-forum').click(function(){
+                $(this).parent().next().toggle();
+            });
+            $('.show-forum').toggle(function(){$(this).text("展开")}, function(){$(this).text("收起")})
+        })
+    </script>
+{% endblock %}

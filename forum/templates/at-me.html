@@ -1,0 +1,112 @@
+﻿{% extends "forum-base.html" %}
+{% block title %}
+    @我的回复 - 极客论坛
+{% endblock %}
+{%block forum_body%}
+<div>
+    <p>当前位置: <a href="/forum/">论坛首页</a> » @我的回复</p>
+    <p>共 <b id="id_all_count">{{results|length}}</b> 条， 未读 <b id="id_unread_count">{{unread_count}}</b> 条</p>
+</div><hr>
+<div class="row-fluid">
+        <div class="span10">
+            {% if paged_events.object_list %}
+            <table class="table table-hover table-striped">
+                <tr id="id_news_table_head">
+                    <th>点击查看@我的回复</th>
+                    <th>@我的时间</th>
+                    <th>阅读状态</th>
+                    <th>操作</th>
+                </tr>
+                {% for news in paged_events.object_list %}
+                <tr id="id_news_{{news.id}}">
+                    <td><a href="/forum/{{news.event.thread.forum.id}}/{{news.event.thread.id}}/?reading={{news.id}}#reply-{{news.event.id}}">{{ news.author }}在回复{{ news.event.thread.author}}的帖子《{{news.event.thread.title}}》中提到了您</a></td>
+                    <td>{{ news.submit_time|date:"Y-m-d H:i:s"}}</td>
+                    <td>{% if news.is_readed %}已读{% else %}<font color="red" id="id_unread_{{news.id}}">未读</font>{% endif %}</td>
+                    <td><button id="id_readed_news_{{news.id}}" class="readed_button btn btn-mini btn-success" {% if news.is_readed %}disabled{% endif %}>设为已读</button> <button id="id_delete_news" class="delete_button btn btn-mini btn-warning">删除记录</button></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div class="pagination pull-right">
+                <ul>
+                {% if paged_events.has_previous %}
+                <li><a href="?page={{ paged_events.previous_page_number }}">前一页</a></li>
+                {% endif %}
+                {% for page_number in events_paginator.page_range %}
+                <!--显示前两页按钮-->
+                    {% if forloop.counter < 3 %}
+                    <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+                    {% endif %}
+                    <!--中间显示...-->
+                    {% ifequal forloop.counter 3 %}
+                    <li><a>...</a></li>
+                    {% endifequal %}
+                    <!--显示最后一页按钮-->
+                    {% if forloop.counter > 2 %}
+                    {% ifequal forloop.counter events_paginator.page_range|length %}
+                    <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+                    {% endifequal %}
+                    {% endif %}
+                {% endfor %}
+                {% if paged_events.has_next %}
+                <li><a href="?page={{ paged_events.next_page_number}}">后一页</a></li>
+                {% endif %}
+            </ul>
+        </div><!--pagination-->
+
+            {% endif %}
+        </div><!--span10-->
+        <div class="span2">
+            <div>
+                <h6>论坛最新帖子</h6>
+                {% if latest_threads %}
+                <ul>
+                    {% for l_thread in latest_threads %}
+                    <li><a href="/forum/{{l_thread.forum.id}}/{{l_thread.id}}/">{{l_thread.title|slice:"15"}}{%if l_thread.title|length > 15%}...{%endif%}</a></li>
+                    {% endfor %}
+                </ul>
+                {%else%}
+                暂无主题
+                {%endif%}
+            </div>
+        </div><!--span2-->
+</div><!--row-->
+<script>
+    function readed_news(id){
+        var url = '/forum/readed-at-me/'+id+'/';
+        $.post(url, {'csrfmiddlewaretoken':'{{ csrf_token }}'}, function(data){
+            if (data=='success'){
+                $('#id_unread_'+id).attr('color', '').text('已读');
+                $('#id_readed_news_'+id).attr('disabled', 'true');
+                $('#id_unread_count').text($('#id_unread_count').text()-1)
+            }else{
+                alert('操作失败！');
+            }
+        });
+    }
+    $(".readed_button").one('click', function(){
+        var id_array = $(this).attr('id').split('_');
+        var id = id_array[id_array.length-1]
+        readed_news(id)
+    });
+
+    function delete_news(id){
+        var url = '/forum/delete-at-me/'+id+'/';
+        $.post(url, {'csrfmiddlewaretoken':'{{ csrf_token }}'}, function(data){
+            if(data=='success'){
+                if ($('#id_unread_'+id).text() == '未读'){
+                    $('#id_unread_count').text($('#id_unread_count').text()-1)
+                }
+                $('#id_news_'+id).remove();
+                $('#id_all_count').text($('#id_all_count').text()-1)
+            }else{
+                alert('操作失败！');
+            }
+        });
+    }
+    $(".delete_button").one('click', function(){
+        var id_array = $(this).prev().attr('id').split('_');
+        var id = id_array[id_array.length-1]
+        delete_news(id)
+    });
+</script>
+{% endblock %}

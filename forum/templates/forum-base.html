@@ -1,0 +1,33 @@
+﻿{% extends "base.html" %}
+
+{% block title %}
+    比赛论坛
+{% endblock %}
+
+{% block pageheader %}
+    比赛论坛
+    <form class="navbar-search pull-right" method="post" action="/forum/search-thread/">{%csrf_token%}
+        <input type="text" class="input-medium search-query" name="keyword" required>
+        <button type="submit" class="btn btn-small">搜索</button>
+    </form>
+{% endblock %}
+
+{% block pageheadersmall %}
+     C0mp3t1ti0n F0Rum
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_forum').attr('class', 'active');
+    });
+</script>
+
+<div class="row-fluid">
+    <div class="span12 well">
+    {% block forum_body %}
+    {% endblock %}
+    </div>
+</div>
+<br>
+{% endblock %}

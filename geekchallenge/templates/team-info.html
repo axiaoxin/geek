@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}
+    团队信息
+{% endblock %}
+
+{% block pageheader %}
+    团队信息
+{% endblock %}
+
+{% block pageheadersmall %}
+    查看或修改团队资料
+{% endblock %}
+
+{% block body %}
+    <script type="text/javascript">
+        $(function(){
+            $('#id_institute > option[value={{profile.institute}}]').attr('selected', 'selected');
+        });
+    </script>
+    <form class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1" align="center" action="" method="post">{% csrf_token %}
+        <fieldset>
+            <legend>{{team}}队伍信息</legend>
+            <div align="center">
+                {% for t in team.team_set.all %}
+                    <div class="control-group">
+                        <label class="control-label">团队名称</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" value="{{t.user.username}}" disabled="disbaled" >
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">当前得分</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" value="{{t.team_score}}" disabled="disabled">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="id_team_email">联系邮箱</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" value="{{ t.user.email }}" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="id_leader_name">队长姓名</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" required id="id_leader_name" value="{{ t.leader_name }}" maxlength="10" name="leader_name">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="id_leader_number">队长学号</label>
+                        <div class="controls">
+                            <input type="number" class="input-xlarge" required id="id_leader_number" value="{{ t.leader_number }}" maxlength="10" name="leader_number">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="id_institute">所属学院</label>
+                        <div class="controls">
+                            <select name="institute" id="id_institute" class="input-xlarge">
+                                <option value="网络工程学院">网络工程学院</option>
+                                <option value="软件工程学院">软件工程学院</option>
+                                <option value="计算机学院">计算机学院</option>
+                                <option value="大气科学学院">大气科学学院</option>
+                                <option value="电子工程学院">电子工程学院</option>
+                                <option value="控制工程学院">控制工程学院</option>
+                                <option value="管理学院">管理学院</option>
+                                <option value="光电技术学院">光电技术学院</option>
+                                <option value="政治学院">政治学院</option>
+                                <option value="统计学院">统计学院</option>
+                                <option value="软件与服务外包学院">软件与服务外包学院</option>
+                                <option value="银杏学院">银杏学院</option>
+                                <option value="资源环境学院">资源环境学院</option>
+                                <option value="通信工程学院">通信工程学院</option>
+                                <option value="数学学院">数学学院</option>
+                                <option value="外国语学院">外国语学院</option>
+                                <option value="文化艺术学院">文化艺术学院</option>
+                                <option value="商学院">商学院</option>
+                                <option value="继续教育学院">继续教育学院</option>
+                                <option value="网络商学院">网络商学院</option>
+                                <option value="校外团队">校外团队</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="id_team_member">团队成员</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" required id="id_team_member" value="{{ t.team_member }}" maxlength="20" name="team_member">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="id_motto" required>参赛口号</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" id="id_motto" value="{{ t.motto }}" maxlength="40" name="motto" required>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div><!--endinfo-->
+            <div class="form-actions" align="center">
+                <a href="/accounts/change-password/" class="btn">修改密码</a>
+                <button type="submit" class="btn btn-primary">保存资料</button>
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

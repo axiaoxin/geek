@@ -1,0 +1,161 @@
+﻿{% extends "forum-base.html" %}
+
+{% block title %}
+    {{forum.name}} - 比赛论坛
+{% endblock %}
+
+{%block forum_body%}
+<div>
+    <p>当前位置: <a href="/forum/">论坛首页</a>{% if parents %}{% for parent in parents reversed %} » <a href="/forum/{{parent.id}}/">{{parent}}</a>{% endfor %}{% endif %} » {{forum.name}}</p>
+    <p>{% if forum.desc %}版块简介: {{forum.desc}}{% endif %}&nbsp;</p>
+</div><hr>
+
+<div class="row-fluid">
+        <div class="span10">
+            {% if forum.child.all %}
+            <p class="label label-info">子版块</p>
+            <table class="table table-hover table-striped">
+                {% for child in forum.child.all %}
+                <tr>
+                    <th>
+                        <h4><a href="/forum/{{ child.id }}/">{{ child.name }}</a></h4>
+                        <p><small>{{ child.desc }}&nbsp; </small></p>
+                        <p>
+                        {% if child.child.all %}
+                        <small>子版块:
+                        {% for sec_child in child.child.all %}
+                        <a href="/forum/{{ sec_child.id }}">{{ sec_child }}</a>  
+                        {% endfor %}
+                        </small></p>
+                        {% endif %}&nbsp;
+                    </th>
+                    <td>
+                        <p style="margin-top:25px; text-align:center;">
+                            <small>
+                            {% if child.id == child.latest_thread.forum.id %}
+                            <a href="/forum/{{ child.latest_thread.forum.id }}/{{ child.latest_thread.id }}/">{{ child.latest_thread }}</a>
+                            <br>{{ child.latest_thread.author }} - {{ child.latest_thread.submit_time|date:"Y-m-d H:i:s" }}</small>
+                            {% else %}
+                            暂无帖子
+                            {% endif %}
+                        </p>
+                    </td>
+                    <td><p style="margin-top:35px; text-align:center;"><small>{{ child.reply_count }}/{{ child.thread_count }}</small></td>
+                </tr>
+                {% endfor %}
+
+                </table>
+                <hr>
+            {% endif %}
+            <div id="new-thread-modal" class="modal hide fade">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal" >&times;</a>
+                    <h4>发表新帖</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="/forum/{{forum.id}}/new/" method="post">{% csrf_token %}
+                        {{form.as_p}}
+                        <div class="modal-footer">
+                            <a href="#" class="btn" data-dismiss="modal" >关闭</a>
+                            <input type="submit" value="发表" class="btn btn-primary">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <p class="pull-right">
+                <a class="btn btn-mini btn-info" href="/forum/elited-thread/">精华帖</a>
+                {% if request.user.is_authenticated %}
+                {% endif %}
+            </p>
+            <p><a data-toggle="modal" href="#new-thread-modal" class="btn btn-primary" href="/forum/{{forum.id}}/new/">发帖</a></p>
+            {% if paged_threads.object_list or toped_threads %}
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>帖子标题</th>
+                    <th>作者</th>
+                    <th>发帖时间</th>
+                    <th>回复/点击</th>
+                    <th>最后回复</th>
+                </tr>
+                {% if toped_threads %}
+                {% for toped_thread in toped_threads %}
+                <tr>
+                    <td>[置顶] {% if toped_thread.is_elite %}[精华] {% endif %}<a href="/forum/{{toped_thread.forum.id}}/{{toped_thread.id}}/">{{toped_thread.title}}</a></td>
+                    <td>{{toped_thread.author}}</td>
+                    <td>{{toped_thread.submit_time|date:"Y-m-d H:i:s"}}</td>
+                    <td>{{toped_thread.reply_count}}/{{toped_thread.clicked}}</td>
+                    <td>{% if toped_thread.latest_reply %}{{toped_thread.latest_reply.author}} @ {{toped_thread.latest_reply}}{% else %}暂无回复{% endif %}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                {% for thread in paged_threads.object_list %}
+                <tr>
+                    <td>{% if thread.is_elite %}[精华] {% endif %}<a href="/forum/{{forum.id}}/{{thread.id}}/">{{thread.title}}</a></td>
+                    <td>{{thread.author}}</td>
+                    <td>{{thread.submit_time|date:"Y-m-d H:i:s"}}</td>
+                    <td>{{thread.reply_count}}/{{thread.clicked}}</td>
+                    <td>{% if thread.latest_reply  %}{{thread.latest_reply.author}} @ {{thread.latest_reply}}{% else %}暂无回复{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div class="pagination pull-right">
+    <ul>
+        {% if paged_threads.has_previous %}
+        <li><a href="?page={{ paged_threads.previous_page_number }}">前一页</a></li>
+        {% endif %}
+        {% for page_number in threads_paginator.page_range %}
+        <!--显示前两页按钮-->
+            {% if forloop.counter < 3 %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endif %}
+            <!--中间显示...-->
+            {% ifequal forloop.counter 3 %}
+            <li><a>...</a></li>
+            {% endifequal %}
+            <!--显示最后一页按钮-->
+            {% if forloop.counter > 2 %}
+            {% ifequal forloop.counter threads_paginator.page_range|length %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endifequal %}
+            {% endif %}
+        {% endfor %}
+        {% if paged_threads.has_next %}
+        <li><a href="?page={{ paged_threads.next_page_number}}">后一页</a></li>
+        {% endif %}
+    </ul>
+</div><!--pagination-->
+
+            {% else %}
+            <p style="text-align:center;color:red;">该版块暂无帖子</p>
+            {% endif %}
+        </div><!--span10-->
+        <div class="span2">
+            <div>
+                <h6>本版热门主题</h6>
+                {% if hot_threads %}
+                <ul>
+                    {% for hot_thread in hot_threads %}
+                    <li><a href="/forum/{{forum.id}}/{{hot_thread.id}}/">{{ hot_thread.title|slice:"15"}}{% if hot_thread.title|length > 15 %}...{%endif%}</a></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                暂无热帖
+                {% endif %}
+            </div>
+            <hr>
+            <div>
+                <h6>论坛最新帖子</h6>
+                {% if latest_threads %}
+                <ul>
+                    {% for l_thread in latest_threads %}
+                    <li><a href="/forum/{{l_thread.forum.id}}/{{l_thread.id}}/">{{l_thread.title|slice:"15"}}{% if l_thread.title|length > 15 %}...{%endif%}</a></li>
+                    {% endfor %}
+                </ul>
+                {%else%}
+                暂无主题
+                {%endif%}
+            </div>
+        </div><!--span2-->
+</div><!--row-->
+
+{% endblock %}

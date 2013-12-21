@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+    排行
+{% endblock %}
+
+{% block pageheader %}
+    团队得分排行榜
+{% endblock %}
+
+{% block pageheadersmall %}
+    {% if teams %}当前共有{{ teams|length }}个团队参赛{% endif %}
+{% endblock %}
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_rank').attr('class', 'active');
+        $('td').css('color', '#edf');
+        $('td').css('font-weight', 'bold');
+    });
+</script>
+{% if teams %}
+<table class="table table-striped table-condensed table-hover">
+    <thead>
+        <tr><td>比赛排名</td><td>团队名称</td><td>参赛口号</td><td>所在学院</td><td>学号年级</td><td>团队总分</td><td>答对题数</td><td>提交时间</td></tr>
+    </thead>
+    <tbody>
+        {% for rank,team in page_teams.object_list %}
+        <tr>
+            <td><span class="label label-info">{{ rank }}</span></td>
+            <td>{{ team.user.username }}</td>
+            <td>{{ team.motto }}</td>
+            <td>{{ team.institute }}</td>
+            <td>{{ team.leader_number|slice:"4" }}</td>
+            <td>{{ team.team_score }}</td>
+            <td>{{ team.answered_count }}</td>
+            <td>{{ team.last_submit_time|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<hr>
+<div class="row-fluid">
+<div class="pagination pull-right">
+    <ul>
+        {% if page_teams.has_previous %}
+        <li><a href="?page={{ page_teams.previous_page_number }}">前一页</a></li>
+        {% endif %}
+        {% for page_number in team_paginator.page_range %}
+        <!--显示前两页按钮-->
+            {% if forloop.counter < 3 %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endif %}
+            <!--中间显示...-->
+            {% ifequal forloop.counter 3 %}
+            <li><a>...</a></li>
+            {% endifequal %}
+            <!--显示最后一页按钮-->
+            {% if forloop.counter > 2 %}
+            {% ifequal forloop.counter team_paginator.page_range|length %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endifequal %}
+            {% endif %}
+        {% endfor %}
+        {% if page_teams.has_next %}
+        <li><a href="?page={{ page_teams.next_page_number}}">后一页</a></li>
+        {% endif %}
+    </ul>
+</div><!--pagination-->
+</div><!--row-->
+
+{% else %}
+<div class="well">
+    <p>没有队伍信息</p>
+</div>
+{% endif %}
+{% endblock %}

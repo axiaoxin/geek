@@ -1,0 +1,125 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} - CUIT第九届信息安全技术大赛在线答题平台</title>
+        <meta charset="utf-8">
+        <meta name="author" content="ashin" >
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="/static/img/icon.jpg">
+        <link rel="stylesheet" href="/static/css/bootstrap.css">
+        <link rel="stylesheet" href="/static/css/bootstrap-responsive.css">
+        <link rel="stylesheet" href="/static/css/prettify.css">
+        <link rel="stylesheet" href="/static/css/docs.css">
+        <script src="/static/js/jquery.js"></script>
+        <script src="/static/js/bootstrap.js"></script>
+        <style type="text/css">
+            body {
+                padding-top:60px;
+                padding-bottom:40px;
+                background:url("/static/img/hacking.jpg") center top repeat fixed;
+                background-image:url("/static/img/hacking.jpg") center top repeat fixed;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="#">信息安全技术大赛</a>
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                            <li id="id_nav_home"><a href="/">首页</a></li>
+                            <li id="id_nav_challenge"><a href="/challenge/">挑战</a></li>
+                            <li id="id_nav_rules"><a href="/rules/">规则</a></li>
+                            <li id="id_nav_rank"><a href="/rank/">排行</a></li>
+                            <li id="id_nav_forum"><a href="/forum/">论坛</a></li>
+                            {% load flatpages %}
+                            {% get_flatpages for request.user as flatpages %} <!--有显示限制正常隐蔽或显示（登录才显示的页面要加for user，不然登录了也看不见-->
+                            {% for flatpage in flatpages %}
+                                   <li id="id_nav_flatpage{{flatpage.id}}"><a href="{{flatpage.url}}">{{ flatpage.title }}</a></li>
+                            {% endfor %}                            
+                        </ul>
+                        <div class="btn-group pull-right">
+                            <a class="btn dropdown-toggle" data-toggle="dropdown" href="">
+                                <i class="icon-user"></i>{% if request.user.is_authenticated %} {{request.user.username}} <span id="at_tip"></span>{% else %} 游客{% endif %}
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% if request.user.is_authenticated %}
+                                <li><a href="/team-info/"><i class="icon-cog"></i> 团队信息</a></li>
+                                <li><a href="/forum/my-threads/"><i class="icon-th-list"></i> 我的帖子</a></li>
+                                <li><a href="/forum/at-me/"><i class="icon-envelope"></i> @我的回复<font color="red" id="id_global_at"></font></a></li>
+                                <li class="divider"></li>
+                                <li><a href="/accounts/logout/"><i class="icon-off"></i> 退出</a></li>
+                                {% else %}
+                                <li><a href="/accounts/register/"><i class="icon-pencil"></i> 注册</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/accounts/login/"><i class="icon-leaf"></i> 登录</a></li>
+                                {% endif %}
+                            </ul>
+                        </div><!-- userbtn -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="page-header">
+                    <h2>{% block pageheader %}{% endblock %} <small>{% block pageheadersmall %}{% endblock%}</small></h2>
+                    {% if messages %}
+                    <div class="alert alert-info" align="center" style="z-index:1;">
+                        <a class="close" data-dismiss="alert">×</a>
+                        {% for m in messages %}
+                        <p>{{m}}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div><!--page-header-->
+
+            </div>
+            {% block body %}
+            {% endblock %}
+        </div>
+
+
+        <div class="footer container-fluid">
+            <p class="pull-right"><a href="#">回到顶端</a></p>
+            <p>Powered by <a href="http://ashin.sinaapp.com" target="_blank">阿小信大人</a> <small>(建议使用Chrome浏览器访问)</small></p>
+            <p>Copyright © 2013 <a href="http://tech.cuit.edu.cn/" target="_blank">三叶草小组</a>-<a href="http://www.cuit.edu.cn/" target="_blank">成都信息工程学院</a>, All Rights Reserved </p>
+        </div>
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+            <script type="text/javascript">
+                alert("建议使用Chrome或Firefox浏览");
+            </script>
+        <![endif]-->
+        {% if request.user.is_authenticated %}
+            <script>
+                function get_new_at_num(){
+                    $.get('/forum/new-at-num/',function(data){
+                        if (data != 0){
+                            $('#at_tip').text('('+data+'条@我未读)');
+                            $('#id_global_at').text(' ('+data+')');
+                        }
+                        else{
+                            $('#at_tip').text('');
+                            $('#id_global_at').text('');
+                        }
+                        window.setTimeout(get_new_at_num, 8000)
+                    });
+                };
+                $(function(){
+                    get_new_at_num();
+                });
+            </script>
+        {%endif%}
+    </body>
+</html>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    公告
+{% endblock %}
+
+{% block pageheader %}
+    比赛公告
+{% endblock %}
+
+{% block pageheadersmall %}
+    {% if notices %}当前共发布{{ notices.count }}条公告{% endif %}
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_home').attr('class', 'active');
+    });
+</script>
+
+{% if notices %}
+<div class="container">
+{% for notice in page_notices.object_list %}
+<div class="well">
+    <p>{{ notice.content|safe }}</p>
+    <strong class="pull-right">{{ notice.pub_time|date:"Y-m-d H:i:s" }} By {{ notice.author }}</strong>
+</div>
+{% endfor %}
+<div class="pagination pull-right">
+    <ul>
+        {% if page_notices.has_previous %}
+        <li><a href="?page={{ page_notices.previous_page_number }}">前一页</a></li>
+        {% endif %}
+        {% for page_number in notices_paginator.page_range %}
+        <!--显示前两页按钮-->
+            {% if forloop.counter < 3 %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endif %}
+            <!--中间显示...-->
+            {% ifequal forloop.counter 3 %}
+            <li><a>...</a></li>
+            {% endifequal %}
+            <!--显示最后一页按钮-->
+            {% if forloop.counter > 2 %}
+            {% ifequal forloop.counter notices_paginator.page_range|length %}
+            <li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endifequal %}
+            {% endif %}
+        {% endfor %}
+        {% if page_notices.has_next %}
+        <li><a href="?page={{ page_notices.next_page_number}}">后一页</a></li>
+        {% endif %}
+    </ul>
+</div>
+
+</div><!--container-->
+{% else %}
+<div class="span12 well">
+    <p>暂无公告！</p>
+</div>
+{% endif %}
+{% endblock %}

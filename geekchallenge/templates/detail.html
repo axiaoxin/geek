@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}
+    答题
+{% endblock %}
+
+{% block pageheader %}
+    挑战
+{% endblock %}
+
+{% block pageheadersmall %}
+    
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span2 tabs-left">
+            <h3 class="page-header">挑战分类列表</h3>
+            <ul class="nav nav-tabs">
+                {% for type in item_types %}
+                    {% ifequal type_id type.id %}
+                    <li class="active"><a href="/challenge/type-{{ type.id }}/">{{ type }}</a></li>
+                    {% else %}
+                    <li><a href="/challenge/type-{{ type.id }}/">{{ type }}</a></li>
+                    {% endifequal %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="span1"></div>
+        <div class="span8">
+            {% if typed_items %}
+            <ul class="thumbnails">
+                {% for item in typed_items %}
+                <div class="row">
+                    <li class="span12 well">
+                        <div class="thumbnail">
+                            <h3 class="badge badge-inverse">第{{forloop.counter}}题<span class="pull-right">分值:{{ item.score }}分</span></h3>
+                            <div class="caption">
+                                <div class="well">
+                                    <div>
+                                        <strong>题目标题：{{ item.title }}</strong>
+                                    </div>
+                                    <br>
+                                    <div style="word-wrap:break-word ;word-break:break-all;"><strong>题目描述：</strong>{{ item.content|safe }}</div>
+                                    {% if item.attachment %}
+                                        <a href="/static/uploads/{{ item.attachment }}">下载附件</a>
+                                    {% endif %}
+                                    <small class="pull-right">@{{ item.pub_time|date:"Y-m-d H:i:s" }} By {{ item.author }}</small>
+                                </div>
+                                <form class="form-inline" action="" method="post">{% csrf_token %}
+                                    <input type="text" name="answer" id="id_answer" required class="input-xlarge">
+                                    <input type="hidden" name="item_id" id="id_item_id" value="{{item.id}}">
+                                    {% if team in item.answered_by_team.all %}
+                                        <button class="btn btn-success" disabled="disabled">该题已完成</button>
+                                    {% else %}
+                                        <button class="btn btn-primary">提交答案</button>
+                                    {% endif %}
+                                </form>
+                            </div><!--caption-->
+                        </div><!--thumbnail-->
+                        <li>
+                    </div><!--row-->
+                    <br><br>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="span12 well" align="center">
+                <strong>该分类题目尚未发放，敬请期待...</strong>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

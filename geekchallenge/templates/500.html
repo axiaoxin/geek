@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    500
+{% endblock %}
+
+{% block pageheader %}
+    Http500
+{% endblock %}
+
+{% block body %}
+<div class="container">
+            <div class="hero-unit">
+                <div class="well modal-example" style="background-color: #888; border: none;">
+                <div class="modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1">
+                    <div class="modal-header">
+                        <h3>500</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>对不起，服务端发生错误，已邮件通知工作人员，请稍后访问...</p>
+                    </div>
+                    <div class="modal-footer">
+                        <p>by 三叶草工作组</p>
+                    </div>
+                </div>
+            </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+﻿{% extends "base.html" %}
+
+{% block title %}
+    挑战
+{% endblock %}
+
+{% block pageheader %}
+    挑战题目分类
+{% endblock %}
+
+{% block pageheadersmall %}
+    点击挑战分类，查看分类题目
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_challenge').attr('class', 'active');
+        $('.thumbnail').hover(function(){
+            $(this).css('background-color', '#888');
+        }, function(){
+            $(this).css('background-color', '');
+        });
+    });
+</script>
+    {% if item_types %}
+    <div class="container">
+        <div class="show-grid">
+            <ul class="thumbnails">
+            {% for type in item_types %}
+                <li class="span3">
+                    <div class="thumbnail">
+                        <a href="/challenge/type-{{ type.id }}/" title="{{type.type_desc}}">
+                            <div class="caption">
+                                <h5 class="">分类{{forloop.counter}}</h5>
+                                <img src="/static/uploads/{{ type.type_img }}" alt="{{ type.type_name }}" width="100%">
+                                <h3>{{ type.type_name }}</h3>
+                            </div><!--caption-->
+                        </a>
+                    </div><!--nail-->
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="container">
+        <div class="well">
+            <h3>题目尚未发放</h3>
+            <p>比赛尚未正式开始，敬请期待...<br><small class="pull-right">By 三叶草工作组</small></p>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    注册
+{% endblock %}
+
+{% block pageheader %}
+    用户注册
+{% endblock %}
+
+{% block pageheadersmall %}
+    请填写真实信息以便需要的时候与您取得联系
+{% endblock %}
+
+
+{% block body %}
+        <form class="form-inline modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1" align="center" action="" method="post">{% csrf_token %}
+            <fieldset>
+                <legend>完善资料</legend>
+                <div align="center">
+                    {{form.as_p}}
+                </div>
+                <div class="form-actions" align="center">
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </div>
+            </fieldset>
+        </form>
+{% endblock %}

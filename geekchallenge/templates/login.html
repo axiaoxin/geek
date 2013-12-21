@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    身份验证
+{% endblock %}
+
+{% block pageheader %}
+    身份验证
+{% endblock %}
+
+{% block pageheadersmall %}
+{% endblock %}
+
+{% block body %}
+        <form class="form-inline modal" style="position: relative; top: auto; left: auto; margin: 0 auto; z-index: 1" align="center" action="" method="post">{% csrf_token %}
+            <fieldset>
+                <legend>登录</legend>
+                <div align="center">
+                    {{form.as_p}}
+                </div>
+                <div class="form-actions" align="center">
+                    <small><a href="/accounts/forget-password/">忘记密码?</a></small>
+                    <a href="/accounts/register/" class="btn">注册</a>
+                    <button type="submit" class="btn btn-primary">登录</button>
+                </div>
+            </fieldset>
+        </form>
+{% endblock %}

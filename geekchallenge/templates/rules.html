@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}
+    规则
+{% endblock %}
+
+{% block pageheader %}
+    比赛规则
+{% endblock %}
+
+{% block pageheadersmall %}
+{% endblock %}
+
+{% block body %}
+<script type="text/javascript">
+    $(function(){
+        $('#id_nav_rules').attr('class', 'active');
+    });
+</script>
+
+<div class="container well">
+    {% if rules %}
+        {% for rule in rules %}
+            {{ rule.content|safe }}
+        {% endfor %}
+    {% else %}
+        <p>比赛规则尚未更新</p>
+    {% endif %}
+</div>
+
+<div class="container">
+    <a href="/challenge/" class="span3 offset4 btn btn-primary btn-large">开始挑战~</a>
+</div>
+{% endblock %}
